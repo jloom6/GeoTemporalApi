@@ -1,14 +1,21 @@
-﻿using GeoTemporalBl;
+﻿using System.Collections.Generic;
+using GeoTemporalBl;
 using GeoTemporalModels;
 using Nancy;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using Newtonsoft.Json.Converters;
 
 namespace GeoTemporalApi
 {
     public class IndexModule : NancyModule
     {
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
+        {
+            Converters = new List<JsonConverter> {new StringEnumConverter()}
+        };
+
         public IndexModule()
             : base("/api/v1")
         {
@@ -59,6 +66,7 @@ namespace GeoTemporalApi
             else
             {
                 response = JsonConvert.SerializeObject(trip);
+                response.ContentType = "application/json";
                 response.StatusCode = HttpStatusCode.OK;
             }
             return response;
@@ -70,6 +78,7 @@ namespace GeoTemporalApi
             try
             {
                 response = GetTripsQueryResponseString();
+                response.ContentType = "application/json";
                 response.StatusCode = HttpStatusCode.OK;
             }
             catch (Exception ex)
@@ -108,7 +117,7 @@ namespace GeoTemporalApi
             catch (Exception)
             {
                 throw new QueryException(
-                    @"type is a required field and must be either ""throughGeoRect"", ""startStopInGeoRect"", or ""pointInTime"".");
+                    @"type is a required field and must be either ""ThroughGeoRect"", ""StartStopInGeoRect"", or ""PointInTime"".");
             }
         }
 
@@ -130,7 +139,7 @@ namespace GeoTemporalApi
                         queryType = QueryType.PointInTime,
                         epoch,
                         numberOfTrips = TripBl.GetTotalTripsOccuringAtTime(epoch)
-                    });
+                    }, SerializerSettings);
         }
 
         private long GetEpoch()
@@ -165,7 +174,7 @@ namespace GeoTemporalApi
                         geoRectangle,
                         totalTrips = (int)totalTripsAndFares.TotalTrips,
                         totalFares = (decimal)totalTripsAndFares.TotalFares
-                    });
+                    }, SerializerSettings);
         }
 
         private GeoRectangle GetGeoRectangle()
@@ -182,7 +191,7 @@ namespace GeoTemporalApi
             }
             catch (Exception)
             {
-                throw new QueryException("{0} is a required field for this query and must be a decimal.");
+                throw new QueryException("{0} is a required field for this query and must be a decimal.", name);
             }
         }
 
@@ -204,7 +213,7 @@ namespace GeoTemporalApi
                         queryType = QueryType.StartStopInGeoRect,
                         geoRectangle,
                         totalTrips = TripBl.GetTotalTripsThroughGeoRectangle(geoRectangle)
-                    });
+                    }, SerializerSettings);
         }
 
         private static Response ClearTrips(dynamic parameters)
