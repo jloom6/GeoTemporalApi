@@ -1,57 +1,25 @@
-﻿using System.Collections.Generic;
-using GeoTemporalBl;
+﻿using GeoTemporalBl;
 using GeoTemporalModels;
 using Nancy;
 using Newtonsoft.Json;
-using System;
-using System.IO;
 using Newtonsoft.Json.Converters;
+using System;
+using System.Collections.Generic;
 
 namespace GeoTemporalApi
 {
-    public class IndexModule : NancyModule
+    public class TripModule : NancyModule
     {
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
-            Converters = new List<JsonConverter> {new StringEnumConverter()}
+            Converters = new List<JsonConverter> { new StringEnumConverter() }
         };
 
-        public IndexModule()
-            : base("/api/v1")
+        public TripModule() : base("/api/v1")
         {
-            Post["/tripMessages"] = AddTripMessage;
             Get["/trips/{tripId:int}"] = GetTrip;
             Get["/trips"] = GetTripsQueryResponse;
             Delete["/trips"] = ClearTrips;
-        }
-
-        private Response AddTripMessage(dynamic parameters)
-        {
-            Response response;
-            try
-            {
-                TripMessageBl.InsertTripMessage(GetTripMessage());
-                response = new Response { StatusCode = HttpStatusCode.Created };
-            }
-            catch (Exception ex)
-            {
-                response = GetErrorMessage(ex);
-                response.ContentType = "application/json";
-                response.StatusCode = HttpStatusCode.BadRequest;
-            }
-            return response;
-        }
-
-        private TripMessage GetTripMessage()
-        {
-            using (Request.Body)
-            using (var streamReader = new StreamReader(Request.Body))
-                return JsonConvert.DeserializeObject<TripMessage>(streamReader.ReadToEnd());
-        }
-
-        private static string GetErrorMessage(Exception ex)
-        {
-            return JsonConvert.SerializeObject(new { error = ex.Message, errorType = ex.GetType().ToString() });
         }
 
         private static Response GetTrip(dynamic parameters)
@@ -214,6 +182,11 @@ namespace GeoTemporalApi
                         geoRectangle,
                         totalTrips = TripBl.GetTotalTripsThroughGeoRectangle(geoRectangle)
                     }, SerializerSettings);
+        }
+
+        private static string GetErrorMessage(Exception ex)
+        {
+            return JsonConvert.SerializeObject(new { error = ex.Message, errorType = ex.GetType().ToString() });
         }
 
         private static Response ClearTrips(dynamic parameters)
