@@ -178,7 +178,7 @@ namespace GeoTemporalApi
                 JsonConvert.SerializeObject(
                     new
                     {
-                        queryType = QueryType.StartStopInGeoRect,
+                        queryType = QueryType.ThroughGeoRect,
                         geoRectangle,
                         totalTrips = TripBl.GetTotalTripsThroughGeoRectangle(geoRectangle)
                     }, SerializerSettings);
