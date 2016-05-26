@@ -59,6 +59,8 @@ Endpoint|HTTP Method|Purpose
 */api/v1/trips*|GET|Get the results of the requested query, supplied as query parameters
 */api/v1/trips*|DELETE|Truncate all of the trips currently in the database
 
+Keep in mind that if you call the DELETE endpoint you will clear ALL trips in the database, not just your own. Not a great design but different users were not a part of the requirement so I did not spend time implementing that.
+
 ####Example calls
 GET */api/v1/trips/432*
 
