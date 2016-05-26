@@ -36,6 +36,8 @@ name|VARCHAR 10
 
 I contemplated using 2 decimal fields for latitude and longitude instead of the point since this project only required querying rectangular areas, but decided on the point since the spatial indexing is actually quite fast and could be much better adapted to other shapes (such as looking in a radius around a point).
 
+The stored procedures and table generating scripts can be found in the sql folder.
+
 ###The Codebase
 The codebase is organized into 5 projects, that may seem like a lot for this small project but it's well organized by function.
 
@@ -175,6 +177,19 @@ topRightLongitude|The longitude of the top right corner, a decimal between -180 
 ```
 
 **All Params are required**
+
+###The Tests
+
+The tests are split up into 6 classes:
+
+Name|Purpose
+---|---
+GetTripPointInTimeQueryTests|Tests the happy paths for the PointInTime queries
+GetTripQueryExceptionTests|Tests the unhappy paths for all queries
+GetTripStartOrStopQueryTests|Tests the happy paths for the StartStopInGeoRect queries
+GetTripThroughGeoRectQueryTests|Tests the happy paths for ThroughGeoRect queries
+InsertTripMessageExceptionTests|Tests the unhappy paths for inserting trip messages
+InsertTripMessageTests|Tests the happy paths for inserting trip messages
 
 ##Fault Tolerance
 The API itself is not very fault tolerant, if it goes down while processing then the message will not be saved. However the client would recieve a 500 error (or not recieve the 201 created response) and should know that is the case. The only other moving part is the database. If that goes down then the message will not be saved, however again a non 201 code would be the response and the client should know that the message was not saved. If the database can not be recovered then we would be relying on any backups to use.
